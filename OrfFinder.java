@@ -1,3 +1,5 @@
+// Deze code is geschreven door Harm en door Harm alleen
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
