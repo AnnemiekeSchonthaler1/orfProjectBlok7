@@ -3,14 +3,14 @@ import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class findOrfInSeq {
+public class FindOrfInSeq {
     ArrayList<Integer> orf;
 
     /**
      * Deze vernaggelde main neemt geen argumenten van de commandline aan, maar argumenten van sequenceObj.
      * @param sequenceObjBinnen is het object waar de orfs van moeten worden gevonden
      */
-    public static HashMap main(sequenceObj sequenceObjBinnen) {
+    public static HashMap main(SequenceObj sequenceObjBinnen) {
         String sequence = sequenceObjBinnen.getSequence();
         System.out.println("Ik ben aangeroepen");
         HashMap orfs = findOrf(sequence);
