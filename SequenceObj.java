@@ -3,7 +3,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 
-public class sequenceObj {
+public class SequenceObj {
     String sequence;
     ArrayList<Integer> orfPosities;
     HashMap orfs;
@@ -12,7 +12,7 @@ public class sequenceObj {
      * Dit is de constructor van sequenceObj.
      * De constructor neemt niets aan, het wordt aangemaakt met setters om de data te valideren.
      */
-    public sequenceObj() {
+    public SequenceObj() {
     }
 
     public String getSequence() {
@@ -37,7 +37,7 @@ public class sequenceObj {
 
     // Deze functie moet worden aangeroepen als er ORF's moeten worden gezocht.
     public void findOrfs(){
-        orfs = findOrfInSeq.main(this);
+        orfs = FindOrfInSeq.main(this);
     }
     public HashMap getOrfs(){
         return this.orfs;
