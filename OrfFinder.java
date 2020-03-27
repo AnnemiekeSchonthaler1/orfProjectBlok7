@@ -1,4 +1,4 @@
-// Deze code is geschreven door Harm en door Harm alleen
+package Blok7ApplicatieORF;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,10 +11,13 @@ import java.io.IOException;
 public class OrfFinder extends JFrame implements ActionListener {
 
     private BufferedReader inFile;
-    private JButton openButton;
-    private JButton doeIetsButton;
+    private JButton openButton, predictOrfButton,  viewOrfsButton, blastOrfsButton;
     private JFileChooser fileChooser;
     private SequenceObj sequenceObj = new SequenceObj();
+    private JTextArea textArea;
+    static JFrame frame;
+    static String[] names = {"Tijdelijk, moet Hashmap omzetten naar String[] voor de List, hier komen de ORFS dan " +
+            "uiteindelijk om uit te kiezen"};
 
     public static void main(String[] args) {
         try {
@@ -29,6 +32,7 @@ public class OrfFinder extends JFrame implements ActionListener {
         OrfFinder frame = new OrfFinder();
         frame.setSize(600, 600);
         frame.createGUI();
+//        frame.pack();
         frame.setVisible(true);
     }
 
@@ -42,9 +46,20 @@ public class OrfFinder extends JFrame implements ActionListener {
         window.add(openButton);
         openButton.addActionListener(this);
 
-        doeIetsButton = new JButton("Predict ORFs");
-        window.add(doeIetsButton);
-        doeIetsButton.addActionListener(this);
+        predictOrfButton = new JButton("Predict ORFs");
+        window.add(predictOrfButton);
+        predictOrfButton.addActionListener(this);
+
+        viewOrfsButton = new JButton("View ORFs");
+        window.add( viewOrfsButton);
+        viewOrfsButton.addActionListener(this);
+
+        blastOrfsButton = new JButton("BLAST ORFs");
+        window.add( blastOrfsButton);
+        blastOrfsButton.addActionListener(this);
+
+        textArea = new JTextArea();
+        window.add(textArea);
     }
 
     public void actionPerformed(ActionEvent event) {
@@ -61,8 +76,14 @@ public class OrfFinder extends JFrame implements ActionListener {
                 }
             }
         }
-        if (event.getSource() == doeIetsButton) {
-            doeIets();
+        if (event.getSource() == predictOrfButton) {
+            predictOrfs();
+        }
+        if (event.getSource() == viewOrfsButton) {
+            viewOrfs();
+        }
+        if (event.getSource() == blastOrfsButton) {
+            blastOrfs();
         }
     }
 
@@ -71,8 +92,7 @@ public class OrfFinder extends JFrame implements ActionListener {
             File selectedFile;
             selectedFile = fileChooser.getSelectedFile();
             inFile = new BufferedReader(new java.io.FileReader(selectedFile.getAbsolutePath()));
-            String line = "";
-            line = inFile.readLine();
+            String line = inFile.readLine();
             if (line.charAt(0) == '>') {
                 StringBuilder sequentie = new StringBuilder();
                 while ((line = inFile.readLine()) != null) {
@@ -92,7 +112,7 @@ public class OrfFinder extends JFrame implements ActionListener {
         inFile.close();
     }
 
-    public void doeIets(){
+    public void predictOrfs(){
         if (sequenceObj.getSequence() != null) {
             sequenceObj.findOrfs();
             System.out.println(sequenceObj.getOrfs());
@@ -102,6 +122,22 @@ public class OrfFinder extends JFrame implements ActionListener {
             JOptionPane.showMessageDialog(null, "Geef eerst een fasta file op via de " +
                     "choose file button");
         }
+    }
+
+    public void viewOrfs(){
+        JLabel name = new JLabel(names[0]);
+        // longValue bepaalt hoeveel zichtbaar is / aantal tekens. Dus heb een lange tab staan voor nu.
+        String selectedName = ListDialog.showDialog(frame,
+                viewOrfsButton,
+                "ORF result viewer",
+                "Choose an ORF to see its BLAST result",
+                names, name.getText(),
+                "ORF                                                                                       ");
+        textArea.append(selectedName);
+    }
+
+    public void blastOrfs(){
+        // functie aanroepen van christiaan
     }
 
 }
