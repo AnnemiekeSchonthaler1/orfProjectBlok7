@@ -1,4 +1,5 @@
-import javax.swing.plaf.SplitPaneUI;
+package Blok7ApplicatieORF;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -12,7 +13,7 @@ public class SequenceObj {
      * Dit is de constructor van sequenceObj.
      * De constructor neemt niets aan, het wordt aangemaakt met setters om de data te valideren.
      */
-    public SequenceObj() {
+    public void sequenceObj() {
     }
 
     public String getSequence() {
@@ -21,7 +22,7 @@ public class SequenceObj {
 
     public void setSequence(String sequence) {
         String sequenceWithoutN = sequence.replace("\n", "");
-        // Dit controleert of er ALLEEN ATGU in de sequentie zit en dus of het een geldige seq is
+        // Dit controleert of er ALLEEN ATGC in de sequentie zit en dus of het een geldige seq is
         String regex = "[ATGC]{"+sequenceWithoutN.length()+"}";
         if (sequenceWithoutN.matches(regex)){
             // Als dit zo is slaat het de sequentie op in de variabele

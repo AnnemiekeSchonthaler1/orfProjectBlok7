@@ -1,4 +1,4 @@
-// Deze code is geschreven door Harm en door Harm alleen
+package Blok7ApplicatieORF;
 
 import javax.swing.*;
 import java.awt.*;
@@ -7,14 +7,19 @@ import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class OrfFinder extends JFrame implements ActionListener {
 
     private BufferedReader inFile;
-    private JButton openButton;
-    private JButton doeIetsButton;
+    private JButton openButton, predictOrfButton, viewOrfsBlastResultsButton, blastOrfsButton;
     private JFileChooser fileChooser;
     private SequenceObj sequenceObj = new SequenceObj();
+    private JTextArea textArea;
+    private String[] orfsArray;
+    private JCheckBox safeResultBox;
+    static JFrame frame;
+
 
     public static void main(String[] args) {
         try {
@@ -27,7 +32,7 @@ public class OrfFinder extends JFrame implements ActionListener {
         }
 
         OrfFinder frame = new OrfFinder();
-        frame.setSize(600, 600);
+        frame.setSize(800, 800);
         frame.createGUI();
         frame.setVisible(true);
     }
@@ -42,9 +47,31 @@ public class OrfFinder extends JFrame implements ActionListener {
         window.add(openButton);
         openButton.addActionListener(this);
 
-        doeIetsButton = new JButton("Predict ORFs");
-        window.add(doeIetsButton);
-        doeIetsButton.addActionListener(this);
+        predictOrfButton = new JButton("Predict ORFs");
+        window.add(predictOrfButton);
+        predictOrfButton.addActionListener(this);
+
+        blastOrfsButton = new JButton("BLAST ORFs");
+        window.add(blastOrfsButton);
+        blastOrfsButton.addActionListener(this);
+
+        viewOrfsBlastResultsButton = new JButton("ORF BLAST results");
+        window.add(viewOrfsBlastResultsButton);
+        viewOrfsBlastResultsButton.addActionListener(this);
+
+        textArea = new JTextArea("Hieronder staan de gevonden ORFs" + "\n", 30, 20);
+        textArea.setLineWrap(true);
+        textArea.setEditable(false);
+        textArea.setVisible(true);
+
+        JScrollPane scroll = new JScrollPane(textArea, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+        window.add(scroll);
+
+        safeResultBox = new JCheckBox("Check if you want to safe the BLAST result");
+        safeResultBox.setSelected(false);
+        window.add(safeResultBox);
+        safeResultBox.addActionListener(this);
+
     }
 
     public void actionPerformed(ActionEvent event) {
@@ -61,8 +88,14 @@ public class OrfFinder extends JFrame implements ActionListener {
                 }
             }
         }
-        if (event.getSource() == doeIetsButton) {
-            doeIets();
+        if (event.getSource() == predictOrfButton) {
+            predictOrfs();
+        }
+        if (event.getSource() == viewOrfsBlastResultsButton) {
+            viewOrfsBlastResults();
+        }
+        if (event.getSource() == blastOrfsButton) {
+            blastOrfs();
         }
     }
 
@@ -71,8 +104,7 @@ public class OrfFinder extends JFrame implements ActionListener {
             File selectedFile;
             selectedFile = fileChooser.getSelectedFile();
             inFile = new BufferedReader(new java.io.FileReader(selectedFile.getAbsolutePath()));
-            String line = "";
-            line = inFile.readLine();
+            String line = inFile.readLine();
             if (line.charAt(0) == '>') {
                 StringBuilder sequentie = new StringBuilder();
                 while ((line = inFile.readLine()) != null) {
@@ -81,27 +113,92 @@ public class OrfFinder extends JFrame implements ActionListener {
                 }
 //                System.out.println(sequentie);
                 sequenceObj.setSequence(sequentie.toString());
-            }
-            else {
+            } else {
                 JOptionPane.showMessageDialog(null, "Onjuist formaat, geef een fasta file op");
             }
-        }
-        catch (IOException ex) {
+        } catch (IOException ex) {
             ex.printStackTrace();
         }
         inFile.close();
     }
 
-    public void doeIets(){
+    public void predictOrfs() {
         if (sequenceObj.getSequence() != null) {
             sequenceObj.findOrfs();
             System.out.println(sequenceObj.getOrfs());
-
-        }
-        else {
+            OrfFinder.MultiThreading t1 = new OrfFinder.MultiThreading();
+            t1.start();
+        } else {
             JOptionPane.showMessageDialog(null, "Geef eerst een fasta file op via de " +
                     "choose file button");
         }
     }
 
+    public void viewOrfsBlastResults() {
+        // blast resultaten ophalen uit database ; indien we genoeg tijd hebben om deze functie af te maken
+    }
+
+    public void blastOrfs() {
+        try {
+            boolean safe = false;
+            orfsArray = makeArrayOfOrfs();
+            JLabel name = new JLabel(orfsArray[0]);
+            // longValue bepaalt hoeveel zichtbaar is / aantal tekens. Dus heb een lange tab staan voor nu.
+            String selectedName = ListDialog.showDialog(frame,
+                    viewOrfsBlastResultsButton,
+                    "ORF viewer",
+                    "Choose an ORF which you would like to BLAST",
+                    orfsArray, name.getText(),
+                    "ORF                                                                                       ");
+            System.out.println(selectedName);
+            if (safeResultBox.isSelected()) {
+                safe = true;
+            }
+            System.out.println(safe);
+            // functie aanroepen van christiaan om geselecteerde ORF te blasten ; afhankelijk van checkbox wordt
+            // ook het resultaat direct opgeslagen in de database
+        }
+        catch (NullPointerException e) {
+            // do nothing ; wordt in makeArrayOfOrfs al met een messagebox gewaarschuwd. Kreeg het niet voor elkaar
+            // om deze helemaal af te vangen, dus ik vang hem hier ook af zonder programma te storen.
+        }
+    }
+
+    public String[] makeArrayOfOrfs() {
+        try {
+            ArrayList<String> orfsArrayList = new ArrayList<>();
+            for (int i = 0; i < sequenceObj.getOrfs().size(); i++) {
+                String orfs = sequenceObj.getOrfs().get(i).toString();
+                orfsArrayList.add(orfs);
+            }
+            orfsArray = new String[orfsArrayList.size()];
+            orfsArrayList.toArray(orfsArray);
+        }
+        catch (NullPointerException | ArrayIndexOutOfBoundsException e) {
+            JOptionPane.showMessageDialog(null, "Er zijn geen ORFs om te selecteren ");
+        }
+        return orfsArray;
+    }
+
+    class MultiThreading extends Thread {
+        private Thread t;
+
+        public void run() {
+            for (int i = 0; i < sequenceObj.getOrfs().size(); i++) {
+                String orf = sequenceObj.getOrfs().get(i).toString();
+                textArea.append(orf + "\n");
+            }
+        }
+
+
+        public void start() {
+            if (t == null) {
+                t = new Thread(this);
+                t.start();
+            }
+        }
+    }
 }
+
+
+
