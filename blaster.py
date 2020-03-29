@@ -6,7 +6,7 @@ keyword="""MYLTLIILPLLGSIVSGFFGRKVGVTGAHLITCVSVVTTTILAILAFLEVGFNNIPVTIN"""
 def do_blast(keyword):
 
     html_results =""
-    results_handle = NCBIWWW.qblast("blastp", "nr", keyword)
+    results_handle = NCBIWWW.qblast("blastn", "nr", keyword)
     print (results_handle)
     blast_records = NCBIXML.parse(results_handle)
     blast_record = next(blast_records)
