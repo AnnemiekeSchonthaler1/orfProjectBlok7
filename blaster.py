@@ -15,7 +15,7 @@ def do_blast(keyword):
         for hsp in alignment.hsps:
             align_coverage = round(hsp.align_length / len(keyword),3)
             html_results += """[
-             sequence_title:  {},
+             sequence_title:  {},   
              length:    {},
              E-value:   {},
              Coverage:  {}] 
