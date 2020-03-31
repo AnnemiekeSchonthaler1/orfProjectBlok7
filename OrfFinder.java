@@ -1,3 +1,7 @@
+//Bug: je kunt een goed bestand kiezen om de knoppen te ontgrendelen, en dan een fout bestand kiezen zodat je op
+// functionele knoppen kunt klikken. Dit wordt wel afgevangen, dus de knoppen doen niks. Moet dan opnieuw een bestand
+// kiezen die wel geldig is, anders functioneren de knoppen niet.
+
 package Blok7ApplicatieORF;
 
 import javax.swing.*;
@@ -126,6 +130,10 @@ public class OrfFinder extends JFrame implements ActionListener {
                 }
 //                System.out.println(sequentie);
                 sequenceObj.setSequence(sequentie.toString());
+                if (sequenceObj.getSequence().equals("0")) {
+                    juistBestand = false;
+                    JOptionPane.showMessageDialog(null, "Ongeldige sequentie; fasta file mag" +
+                            " alleen één nucleotide sequentie bevatten"); }
             } else {
                 JOptionPane.showMessageDialog(null, "Onjuist formaat, geef een fasta file op");
             }
@@ -141,15 +149,10 @@ public class OrfFinder extends JFrame implements ActionListener {
 
     public void predictOrfs() {
         if (sequenceObj.getSequence() != null) {
-            if (sequenceObj.getSequence().equals("0")) {
-                JOptionPane.showMessageDialog(null, "Sequentie ongeldig; moet één " +
-                        "nucleotide sequentie zijn in fasta formaat"); }
-            else {
-                sequenceObj.findOrfs();
-                System.out.println(sequenceObj.getOrfs());
-                OrfFinder.MultiThreading t1 = new OrfFinder.MultiThreading();
-                t1.start(); }
-        }
+            sequenceObj.findOrfs();
+            System.out.println(sequenceObj.getOrfs());
+            OrfFinder.MultiThreading t1 = new OrfFinder.MultiThreading();
+            t1.start(); }
     }
 
     public void viewOrfsBlastResults() {
@@ -176,7 +179,7 @@ public class OrfFinder extends JFrame implements ActionListener {
             // functie aanroepen van christiaan om geselecteerde ORF te blasten ; afhankelijk van checkbox wordt
             // ook het resultaat direct opgeslagen in de database
         }
-        catch (NullPointerException e) {
+        catch (NullPointerException | ArrayIndexOutOfBoundsException e) {
             // do nothing ; wordt in makeArrayOfOrfs al met een messagebox gewaarschuwd. Kreeg het niet voor elkaar
             // om deze helemaal af te vangen, dus ik vang hem hier ook af zonder programma te storen.
         }
