@@ -109,6 +109,14 @@ public class OrfFinder extends JFrame implements ActionListener {
                 StringBuilder sequentie = new StringBuilder();
                 while ((line = inFile.readLine()) != null) {
 //                    System.out.println(line);
+                    // bestand mag maar één sequentie bevatten, indien meerdere headers gevonden wordt actie afgebroken.
+                    // sequentie krijgt een 0 mee mocht de gebruiker toch andere functies hierop uitproberen, dan wordt
+                    // deze juist afgevangen
+                    if (line.charAt(0) == '>') {
+                        JOptionPane.showMessageDialog(null, "Bestand mag maar één sequentie bevatten");
+                        sequentie.append("0");
+                        break;
+                    }
                     sequentie.append(line);
                 }
 //                System.out.println(sequentie);
@@ -123,12 +131,19 @@ public class OrfFinder extends JFrame implements ActionListener {
     }
 
     public void predictOrfs() {
-        if (sequenceObj.getSequence() != null) {
-            sequenceObj.findOrfs();
-            System.out.println(sequenceObj.getOrfs());
-            OrfFinder.MultiThreading t1 = new OrfFinder.MultiThreading();
-            t1.start();
-        } else {
+        try {
+            if (sequenceObj.getSequence() != null) {
+                if (sequenceObj.getSequence().equals("0")) {
+                    JOptionPane.showMessageDialog(null, "Sequentie ongeldig, geef een" +
+                            "bestand op met één nucleotide sequentie in fasta format");
+                } else {
+                    sequenceObj.findOrfs();
+                    System.out.println(sequenceObj.getOrfs());
+                    OrfFinder.MultiThreading t1 = new OrfFinder.MultiThreading();
+                    t1.start();
+                }
+            }
+        } catch (NullPointerException e) {
             JOptionPane.showMessageDialog(null, "Geef eerst een fasta file op via de " +
                     "choose file button");
         }
@@ -168,9 +183,8 @@ public class OrfFinder extends JFrame implements ActionListener {
         try {
             ArrayList<String> orfsArrayList = new ArrayList<>();
             for (int i = 0; i < sequenceObj.getOrfs().size(); i++) {
-                String orfs = sequenceObj.getOrfs().get(i).toString();
-                orfsArrayList.add(orfs);
-            }
+            String orfs = sequenceObj.getOrfs().get(i).toString();
+            orfsArrayList.add(orfs); }
             orfsArray = new String[orfsArrayList.size()];
             orfsArrayList.toArray(orfsArray);
         }
