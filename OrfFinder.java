@@ -1,6 +1,6 @@
 //Bug: je kunt een goed bestand kiezen om de knoppen te ontgrendelen, en dan een fout bestand kiezen zodat je op
-// functionele knoppen kunt klikken. Dit wordt wel afgevangen, dus de knoppen doen niks. Moet dan opnieuw een bestand
-// kiezen die wel geldig is, anders functioneren de knoppen niet.
+// functionele knoppen kunt klikken. Dit wordt wel afgevangen, dus de knoppen doen niks (en predictorf knop geeft 0 orfs aan).
+// Je moet dan opnieuw een bestand kiezen die wel geldig is.
 
 package Blok7ApplicatieORF;
 
@@ -65,7 +65,7 @@ public class OrfFinder extends JFrame implements ActionListener {
         window.add(viewOrfsBlastResultsButton);
         viewOrfsBlastResultsButton.addActionListener(this);
 
-        textArea = new JTextArea("Hieronder staan de gevonden ORFs" + "\n", 30, 20);
+        textArea = new JTextArea("<<< Voorspelde ORFs >>> " + "\n", 30, 20);
         textArea.setLineWrap(true);
         textArea.setEditable(false);
         textArea.setVisible(true);
@@ -151,8 +151,12 @@ public class OrfFinder extends JFrame implements ActionListener {
         if (sequenceObj.getSequence() != null) {
             sequenceObj.findOrfs();
             System.out.println(sequenceObj.getOrfs());
-            OrfFinder.MultiThreading t1 = new OrfFinder.MultiThreading();
-            t1.start(); }
+            if (sequenceObj.getOrfs().size() > 0) {
+                textArea.append("Aantal gevonden Orfs: " + sequenceObj.getOrfs().size() + "\n");
+                OrfFinder.MultiThreading t1 = new OrfFinder.MultiThreading();
+                t1.start();
+            }
+        }
     }
 
     public void viewOrfsBlastResults() {
