@@ -112,7 +112,7 @@ public class OrfFinder extends JFrame implements ActionListener {
                     // bestand mag maar één sequentie bevatten, indien meerdere headers gevonden wordt actie afgebroken.
                     // sequentie krijgt een 0 mee mocht de gebruiker toch andere functies hierop uitproberen, dan wordt
                     // deze juist afgevangen
-                    if (line.charAt(0) == '>') {
+                    if (line.contains(">")) {
                         JOptionPane.showMessageDialog(null, "Bestand mag maar één sequentie bevatten");
                         sequentie.append("0");
                         break;
