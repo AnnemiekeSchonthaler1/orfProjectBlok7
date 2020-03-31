@@ -50,10 +50,12 @@ public class OrfFinder extends JFrame implements ActionListener {
         predictOrfButton = new JButton("Predict ORFs");
         window.add(predictOrfButton);
         predictOrfButton.addActionListener(this);
+        predictOrfButton.setEnabled(false);
 
         blastOrfsButton = new JButton("BLAST ORFs");
         window.add(blastOrfsButton);
         blastOrfsButton.addActionListener(this);
+        blastOrfsButton.setEnabled(false);
 
         viewOrfsBlastResultsButton = new JButton("ORF BLAST results");
         window.add(viewOrfsBlastResultsButton);
@@ -100,12 +102,14 @@ public class OrfFinder extends JFrame implements ActionListener {
     }
 
     public void readFile() throws IOException {
+        boolean juistBestand = false;
         try {
             File selectedFile;
             selectedFile = fileChooser.getSelectedFile();
             inFile = new BufferedReader(new java.io.FileReader(selectedFile.getAbsolutePath()));
             String line = inFile.readLine();
             if (line.charAt(0) == '>') {
+                juistBestand = true;
                 StringBuilder sequentie = new StringBuilder();
                 while ((line = inFile.readLine()) != null) {
 //                    System.out.println(line);
@@ -115,6 +119,7 @@ public class OrfFinder extends JFrame implements ActionListener {
                     if (line.contains(">")) {
                         JOptionPane.showMessageDialog(null, "Bestand mag maar één sequentie bevatten");
                         sequentie.append("0");
+                        juistBestand = false;
                         break;
                     }
                     sequentie.append(line);
@@ -128,24 +133,22 @@ public class OrfFinder extends JFrame implements ActionListener {
             ex.printStackTrace();
         }
         inFile.close();
+        if (juistBestand) {
+            predictOrfButton.setEnabled(true);
+            blastOrfsButton.setEnabled(true);
+        }
     }
 
     public void predictOrfs() {
-        try {
-            if (sequenceObj.getSequence() != null) {
-                if (sequenceObj.getSequence().equals("0")) {
-                    JOptionPane.showMessageDialog(null, "Sequentie ongeldig, geef een" +
-                            "bestand op met één nucleotide sequentie in fasta format");
-                } else {
-                    sequenceObj.findOrfs();
-                    System.out.println(sequenceObj.getOrfs());
-                    OrfFinder.MultiThreading t1 = new OrfFinder.MultiThreading();
-                    t1.start();
-                }
-            }
-        } catch (NullPointerException e) {
-            JOptionPane.showMessageDialog(null, "Geef eerst een fasta file op via de " +
-                    "choose file button");
+        if (sequenceObj.getSequence() != null) {
+            if (sequenceObj.getSequence().equals("0")) {
+                JOptionPane.showMessageDialog(null, "Sequentie ongeldig; moet één " +
+                        "nucleotide sequentie zijn in fasta formaat"); }
+            else {
+                sequenceObj.findOrfs();
+                System.out.println(sequenceObj.getOrfs());
+                OrfFinder.MultiThreading t1 = new OrfFinder.MultiThreading();
+                t1.start(); }
         }
     }
 
