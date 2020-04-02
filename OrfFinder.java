@@ -174,6 +174,24 @@ public class OrfFinder extends JFrame implements ActionListener {
                 }
             } else if (System.getProperty("os.name").startsWith("Unix")) {
                 System.out.println("Linux");
+                            //To get the PYTHON_ABSOLUTE_PATH just type
+            //
+            //which python2.7
+            String[] commands = new String[3];
+            commands[0] = "/bin/sh";
+            commands[1] = "-c";
+            commands[2] = "./blaster.py";
+
+            ProcessBuilder pb = new ProcessBuilder(commands);
+            Process p = pb.start();
+            BufferedReader bri = new BufferedReader(new InputStreamReader(p.getInputStream()));
+
+            bri.close();
+            String line;
+            while ((line = bri.readLine()) != null) {
+                System.out.println(line);
+            }
+            System.out.println("dun" );
             }
 
             // functie aanroepen van christiaan om geselecteerde ORF te blasten ; afhankelijk van checkbox wordt
