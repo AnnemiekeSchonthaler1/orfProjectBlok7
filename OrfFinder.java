@@ -1,3 +1,7 @@
+//Bug: je kunt een goed bestand kiezen om de knoppen te ontgrendelen, en dan een fout bestand kiezen zodat je op
+// functionele knoppen kunt klikken. Dit wordt wel afgevangen, dus de knoppen doen niks (en predictorf knop geeft 0 orfs aan).
+// Je moet dan opnieuw een bestand kiezen die wel geldig is.
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -7,9 +11,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.concurrent.Executors;
 
-public class OrfFinder extends JFrame implements ActionListener {
+public class OrfFinderNieuw extends JFrame implements ActionListener {
 
     private BufferedReader inFile;
     private JButton openButton, predictOrfButton, viewOrfsBlastResultsButton, blastOrfsButton;
@@ -31,7 +34,7 @@ public class OrfFinder extends JFrame implements ActionListener {
             e.printStackTrace();
         }
 
-        OrfFinder frame = new OrfFinder();
+        OrfFinderNieuw frame = new OrfFinderNieuw();
         frame.setSize(800, 800);
         frame.createGUI();
         frame.setVisible(true);
@@ -50,16 +53,18 @@ public class OrfFinder extends JFrame implements ActionListener {
         predictOrfButton = new JButton("Predict ORFs");
         window.add(predictOrfButton);
         predictOrfButton.addActionListener(this);
+        predictOrfButton.setEnabled(false);
 
         blastOrfsButton = new JButton("BLAST ORFs");
         window.add(blastOrfsButton);
         blastOrfsButton.addActionListener(this);
+        blastOrfsButton.setEnabled(false);
 
         viewOrfsBlastResultsButton = new JButton("ORF BLAST results");
         window.add(viewOrfsBlastResultsButton);
         viewOrfsBlastResultsButton.addActionListener(this);
 
-        textArea = new JTextArea("Hieronder staan de gevonden ORFs" + "\n", 30, 20);
+        textArea = new JTextArea("<<< Voorspelde ORFs >>> " + "\n", 30, 20);
         textArea.setLineWrap(true);
         textArea.setEditable(false);
         textArea.setVisible(true);
@@ -100,19 +105,34 @@ public class OrfFinder extends JFrame implements ActionListener {
     }
 
     public void readFile() throws IOException {
+        boolean juistBestand = false;
         try {
             File selectedFile;
             selectedFile = fileChooser.getSelectedFile();
             inFile = new BufferedReader(new java.io.FileReader(selectedFile.getAbsolutePath()));
             String line = inFile.readLine();
             if (line.charAt(0) == '>') {
+                juistBestand = true;
                 StringBuilder sequentie = new StringBuilder();
                 while ((line = inFile.readLine()) != null) {
 //                    System.out.println(line);
+                    // bestand mag maar één sequentie bevatten, indien meerdere headers gevonden wordt actie afgebroken.
+                    // sequentie krijgt een 0 mee mocht de gebruiker toch andere functies hierop uitproberen, dan wordt
+                    // deze juist afgevangen
+                    if (line.contains(">")) {
+                        JOptionPane.showMessageDialog(null, "Bestand mag maar één sequentie bevatten");
+                        sequentie.append("0");
+                        juistBestand = false;
+                        break;
+                    }
                     sequentie.append(line);
                 }
 //                System.out.println(sequentie);
                 sequenceObj.setSequence(sequentie.toString());
+                if (sequenceObj.getSequence().equals("0")) {
+                    juistBestand = false;
+                    JOptionPane.showMessageDialog(null, "Ongeldige sequentie; fasta file mag" +
+                            " alleen één nucleotide sequentie bevatten"); }
             } else {
                 JOptionPane.showMessageDialog(null, "Onjuist formaat, geef een fasta file op");
             }
@@ -120,17 +140,21 @@ public class OrfFinder extends JFrame implements ActionListener {
             ex.printStackTrace();
         }
         inFile.close();
+        if (juistBestand) {
+            predictOrfButton.setEnabled(true);
+            blastOrfsButton.setEnabled(true);
+        }
     }
 
     public void predictOrfs() {
         if (sequenceObj.getSequence() != null) {
             sequenceObj.findOrfs();
             System.out.println(sequenceObj.getOrfs());
-            OrfFinder.MultiThreading t1 = new OrfFinder.MultiThreading();
-            t1.start();
-        } else {
-            JOptionPane.showMessageDialog(null, "Geef eerst een fasta file op via de " +
-                    "choose file button");
+            if (sequenceObj.getOrfs().size() > 0) {
+                textArea.append("Aantal gevonden Orfs: " + sequenceObj.getOrfs().size() + "\n");
+                OrfFinderNieuw.MultiThreading t1 = new OrfFinderNieuw.MultiThreading();
+                t1.start();
+            }
         }
     }
 
@@ -155,48 +179,56 @@ public class OrfFinder extends JFrame implements ActionListener {
                 safe = true;
             }
             System.out.println(safe);
+            // functie aanroepen van christiaan om geselecteerde ORF te blasten ; afhankelijk van checkbox wordt
+            // ook het resultaat direct opgeslagen in de database
 
+            // Ik controleer of het os Windows is of een Unix systeem
             if (System.getProperty("os.name").startsWith("Windows")) {
                 System.out.println("Windows");
+                // Als het windows is voer ik het gepaste commandline commando uit om
                 Runtime rt = Runtime.getRuntime();
                 try {
-                    String command = "C:\\Users\\Gebruiker\\AppData\\Local\\Programs\\Python\\Python36-32\\Scripts\\pip install biopython\n" +
-                            "C:\\Users\\Gebruiker\\AppData\\Local\\Programs\\Python\\Python36-32\\python %CD%\\src\\blaster.py";
-                    Process p = rt.exec(command);
-                    System.out.println("Ik ben klaar met het uitvoeren van de BLAST.");
+                    String command = "blaster.exe";
+                    Process p = rt.exec(command, null, new File(System.getProperty("user.dir")));
+                    p.waitFor();
                     BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
-                    String line = null;
+//                    ProcessBuilder processBuilder = new ProcessBuilder("blaster.exe");
+//                    processBuilder.redirectErrorStream(true);
+//                    Process p = processBuilder.start();
+//                    BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
+                    String line;
                     while ((line = input.readLine()) != null) {
                         System.out.println(line);
                     }
+                    System.out.println("Ik ben klaar met het uitvoeren van de BLAST.");
                 } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             } else if (System.getProperty("os.name").startsWith("Unix")) {
                 System.out.println("Linux");
-                            //To get the PYTHON_ABSOLUTE_PATH just type
-            //
-            //which python2.7
-            String[] commands = new String[3];
-            commands[0] = "/bin/sh";
-            commands[1] = "-c";
-            commands[2] = "./blaster.py";
+                //To get the PYTHON_ABSOLUTE_PATH just type
+                //
+                //which python2.7
+                String[] commands = new String[3];
+                commands[0] = "/bin/sh";
+                commands[1] = "-c";
+                commands[2] = "blaster.py";
 
-            ProcessBuilder pb = new ProcessBuilder(commands);
-            Process p = pb.start();
-            BufferedReader bri = new BufferedReader(new InputStreamReader(p.getInputStream()));
+                ProcessBuilder pb = new ProcessBuilder(commands);
+                Process p = pb.start();
+                BufferedReader bri = new BufferedReader(new InputStreamReader(p.getInputStream()));
 
-            bri.close();
-            String line;
-            while ((line = bri.readLine()) != null) {
-                System.out.println(line);
+                bri.close();
+                String line;
+                while ((line = bri.readLine()) != null) {
+                    System.out.println(line);
+                }
+                System.out.println("dun" );
             }
-            System.out.println("dun" );
-            }
-
-            // functie aanroepen van christiaan om geselecteerde ORF te blasten ; afhankelijk van checkbox wordt
-            // ook het resultaat direct opgeslagen in de database
-        } catch (NullPointerException e) {
+        }
+        catch (NullPointerException | ArrayIndexOutOfBoundsException | IOException e) {
             // do nothing ; wordt in makeArrayOfOrfs al met een messagebox gewaarschuwd. Kreeg het niet voor elkaar
             // om deze helemaal af te vangen, dus ik vang hem hier ook af zonder programma te storen.
         }
@@ -207,11 +239,11 @@ public class OrfFinder extends JFrame implements ActionListener {
             ArrayList<String> orfsArrayList = new ArrayList<>();
             for (int i = 0; i < sequenceObj.getOrfs().size(); i++) {
                 String orfs = sequenceObj.getOrfs().get(i).toString();
-                orfsArrayList.add(orfs);
-            }
+                orfsArrayList.add(orfs); }
             orfsArray = new String[orfsArrayList.size()];
             orfsArrayList.toArray(orfsArray);
-        } catch (NullPointerException | ArrayIndexOutOfBoundsException e) {
+        }
+        catch (NullPointerException | ArrayIndexOutOfBoundsException e) {
             JOptionPane.showMessageDialog(null, "Er zijn geen ORFs om te selecteren ");
         }
         return orfsArray;
@@ -236,6 +268,3 @@ public class OrfFinder extends JFrame implements ActionListener {
         }
     }
 }
-
-
-
