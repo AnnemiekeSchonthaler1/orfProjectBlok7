@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 
-public class OrfFinderNieuw extends JFrame implements ActionListener {
+public class OrfFinder extends JFrame implements ActionListener {
 
     private BufferedReader inFile;
     private JButton openButton, predictOrfButton, viewOrfsBlastResultsButton, blastOrfsButton;
@@ -34,7 +34,7 @@ public class OrfFinderNieuw extends JFrame implements ActionListener {
             e.printStackTrace();
         }
 
-        OrfFinderNieuw frame = new OrfFinderNieuw();
+        OrfFinder frame = new OrfFinder();
         frame.setSize(800, 800);
         frame.createGUI();
         frame.setVisible(true);
@@ -152,7 +152,7 @@ public class OrfFinderNieuw extends JFrame implements ActionListener {
             System.out.println(sequenceObj.getOrfs());
             if (sequenceObj.getOrfs().size() > 0) {
                 textArea.append("Aantal gevonden Orfs: " + sequenceObj.getOrfs().size() + "\n");
-                OrfFinderNieuw.MultiThreading t1 = new OrfFinderNieuw.MultiThreading();
+                OrfFinder.MultiThreading t1 = new OrfFinder.MultiThreading();
                 t1.start();
             }
         }
