@@ -12,6 +12,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class OrfFinder extends JFrame implements ActionListener {
 
@@ -151,6 +152,7 @@ public class OrfFinder extends JFrame implements ActionListener {
         if (sequenceObj.getSequence() != null) {
             sequenceObj.findOrfs();
             System.out.println(sequenceObj.getOrfs());
+
             if (sequenceObj.getOrfs().size() > 0) {
                 textArea.append("Aantal gevonden Orfs: " + sequenceObj.getOrfs().size() + "\n");
                 OrfFinder.MultiThreading t1 = new OrfFinder.MultiThreading();
@@ -176,6 +178,13 @@ public class OrfFinder extends JFrame implements ActionListener {
                     orfsArray, name.getText(),
                     "ORF                                                                                       ");
             System.out.println(selectedName);
+            String[] result = selectedName.split(":");
+            int id = Integer.parseInt(result[0]);
+            System.out.println(sequenceObj.orfs.get(id));
+            ArrayList<Integer> positie = (ArrayList<Integer>) sequenceObj.orfs.get(id);
+            String sequentieOrf = sequenceObj.getSequence().substring(positie.get(0), positie.get(1));
+            System.out.println(sequentieOrf);
+
             if (safeResultBox.isSelected()) {
                 safe = true;
             }
@@ -194,7 +203,7 @@ public class OrfFinder extends JFrame implements ActionListener {
             ArrayList<String> orfsArrayList = new ArrayList<>();
             for (int i = 0; i < sequenceObj.getOrfs().size(); i++) {
             String orfs = sequenceObj.getOrfs().get(i).toString();
-            orfsArrayList.add(orfs); }
+            orfsArrayList.add(i + ": " + orfs); }
             orfsArray = new String[orfsArrayList.size()];
             orfsArrayList.toArray(orfsArray);
         }
