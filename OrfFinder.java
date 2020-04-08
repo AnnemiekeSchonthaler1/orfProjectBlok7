@@ -187,8 +187,12 @@ public class OrfFinder extends JFrame implements ActionListener {
 
             System.out.println("Annemieke");
             // Deze zin haalt een array met de locatie van het ORF op uit het sequenctie object
-            ArrayList<Integer> locatieOrf = sequenceObj.getOrfs().get(Integer.parseInt(selectedName.split(":")[0]));
-            String sequentieOrf = (sequenceObj.sequence.substring(locatieOrf.get(0), locatieOrf.get(1)));
+            String[] result = selectedName.split(":");
+            int id = Integer.parseInt(result[0]);
+            System.out.println(sequenceObj.orfs.get(id));
+            ArrayList<Integer> positie = (ArrayList<Integer>) sequenceObj.orfs.get(id);
+            String sequentieOrf = sequenceObj.getSequence().substring(positie.get(0), positie.get(1));
+            System.out.println(sequentieOrf);
             // Ik controleer of het os Windows is of een Unix systeem
             if (System.getProperty("os.name").startsWith("Windows")) {
                 System.out.println("Windows");
