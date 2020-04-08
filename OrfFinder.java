@@ -2,6 +2,7 @@
 // functionele knoppen kunt klikken. Dit wordt wel afgevangen, dus de knoppen doen niks (en predictorf knop geeft 0 orfs aan).
 // Je moet dan opnieuw een bestand kiezen die wel geldig is.
 
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -11,6 +12,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class OrfFinder extends JFrame implements ActionListener {
 
@@ -132,7 +134,8 @@ public class OrfFinder extends JFrame implements ActionListener {
                 if (sequenceObj.getSequence().equals("0")) {
                     juistBestand = false;
                     JOptionPane.showMessageDialog(null, "Ongeldige sequentie; fasta file mag" +
-                            " alleen één nucleotide sequentie bevatten"); }
+                            " alleen één nucleotide sequentie bevatten");
+                }
             } else {
                 JOptionPane.showMessageDialog(null, "Onjuist formaat, geef een fasta file op");
             }
@@ -150,6 +153,7 @@ public class OrfFinder extends JFrame implements ActionListener {
         if (sequenceObj.getSequence() != null) {
             sequenceObj.findOrfs();
             System.out.println(sequenceObj.getOrfs());
+
             if (sequenceObj.getOrfs().size() > 0) {
                 textArea.append("Aantal gevonden Orfs: " + sequenceObj.getOrfs().size() + "\n");
                 OrfFinder.MultiThreading t1 = new OrfFinder.MultiThreading();
@@ -174,7 +178,6 @@ public class OrfFinder extends JFrame implements ActionListener {
                     "Choose an ORF which you would like to BLAST",
                     orfsArray, name.getText(),
                     "ORF                                                                                       ");
-            System.out.println(selectedName);
             if (safeResultBox.isSelected()) {
                 safe = true;
             }
@@ -182,13 +185,17 @@ public class OrfFinder extends JFrame implements ActionListener {
             // functie aanroepen van christiaan om geselecteerde ORF te blasten ; afhankelijk van checkbox wordt
             // ook het resultaat direct opgeslagen in de database
 
+            System.out.println("Annemieke");
+            // Deze zin haalt een array met de locatie van het ORF op uit het sequenctie object
+            ArrayList<Integer> locatieOrf = sequenceObj.getOrfs().get(Integer.parseInt(selectedName.split(":")[0]));
+            String sequentieOrf = (sequenceObj.sequence.substring(locatieOrf.get(0), locatieOrf.get(1)));
             // Ik controleer of het os Windows is of een Unix systeem
             if (System.getProperty("os.name").startsWith("Windows")) {
                 System.out.println("Windows");
                 // Als het windows is voer ik het gepaste commandline commando uit om
                 Runtime rt = Runtime.getRuntime();
                 try {
-                    String command = "blaster.exe";
+                    String command = "blaster.exe "+sequentieOrf;
                     Process p = rt.exec(command, null, new File(System.getProperty("user.dir")));
                     p.waitFor();
                     BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
@@ -225,10 +232,9 @@ public class OrfFinder extends JFrame implements ActionListener {
                 while ((line = bri.readLine()) != null) {
                     System.out.println(line);
                 }
-                System.out.println("dun" );
+                System.out.println("dun");
             }
-        }
-        catch (NullPointerException | ArrayIndexOutOfBoundsException | IOException e) {
+        } catch (NullPointerException | ArrayIndexOutOfBoundsException | IOException e) {
             // do nothing ; wordt in makeArrayOfOrfs al met een messagebox gewaarschuwd. Kreeg het niet voor elkaar
             // om deze helemaal af te vangen, dus ik vang hem hier ook af zonder programma te storen.
         }
@@ -239,11 +245,11 @@ public class OrfFinder extends JFrame implements ActionListener {
             ArrayList<String> orfsArrayList = new ArrayList<>();
             for (int i = 0; i < sequenceObj.getOrfs().size(); i++) {
                 String orfs = sequenceObj.getOrfs().get(i).toString();
-                orfsArrayList.add(orfs); }
+                orfsArrayList.add(i + ": " + orfs);
+            }
             orfsArray = new String[orfsArrayList.size()];
             orfsArrayList.toArray(orfsArray);
-        }
-        catch (NullPointerException | ArrayIndexOutOfBoundsException e) {
+        } catch (NullPointerException | ArrayIndexOutOfBoundsException e) {
             JOptionPane.showMessageDialog(null, "Er zijn geen ORFs om te selecteren ");
         }
         return orfsArray;
@@ -268,3 +274,6 @@ public class OrfFinder extends JFrame implements ActionListener {
         }
     }
 }
+
+
+
