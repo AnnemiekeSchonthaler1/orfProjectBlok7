@@ -10,6 +10,9 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -133,7 +136,8 @@ public class OrfFinder extends JFrame implements ActionListener {
                 if (sequenceObj.getSequence().equals("0")) {
                     juistBestand = false;
                     JOptionPane.showMessageDialog(null, "Ongeldige sequentie; fasta file mag" +
-                            " alleen één nucleotide sequentie bevatten"); }
+                            " alleen één nucleotide sequentie bevatten");
+                }
             } else {
                 JOptionPane.showMessageDialog(null, "Onjuist formaat, geef een fasta file op");
             }
@@ -196,7 +200,7 @@ public class OrfFinder extends JFrame implements ActionListener {
                 // Als het windows is voer ik het gepaste commandline commando uit om
                 Runtime rt = Runtime.getRuntime();
                 try {
-                    String command = "blaster.exe "+sequentieOrf;
+                    String command = "blaster.exe " + sequentieOrf;
                     Process p = rt.exec(command, null, new File(System.getProperty("user.dir")));
                     p.waitFor();
                     BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
@@ -235,10 +239,36 @@ public class OrfFinder extends JFrame implements ActionListener {
                 }
                 System.out.println("dun");
             }
-        }
-        catch (NullPointerException | ArrayIndexOutOfBoundsException | IOException e) {
+
+            if (safe) {
+                // Hier moeten de resultaten meegegeven
+                safeBlast();
+            }
+        } catch (NullPointerException | ArrayIndexOutOfBoundsException | IOException e) {
             // do nothing ; wordt in makeArrayOfOrfs al met een messagebox gewaarschuwd. Kreeg het niet voor elkaar
             // om deze helemaal af te vangen, dus ik vang hem hier ook af zonder programma te storen.
+        }
+    }
+
+    private void safeBlast() {
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+            Connection con = DriverManager.getConnection(
+                    "jdbc:mysql://hannl-hlo-bioinformatica-mysqlsrv.mysql.database.azure.com:3306/rucia?serverTimezone=UTC",
+                    "rucia@hannl-hlo-bioinformatica-mysqlsrv",
+                    "kip");
+//here sonoo is database name, root is username and password
+            //for(blast in blastList){
+            /*
+insert into sequence(  {seq_id } , {seq_varchar } )
+insert into ORF( {ORF_id },{ Sequence_ORF},{Sequence_sequence_id})
+insert into Blast_res ( { description}, {coverage},{e_value}, {loc_start},{Loc_end},{blast_id},{ORF_ORF_id})
+ */
+            Statement stmt = con.prepareStatement("insert into blast_res (column1, column2) values (?, ?)");
+            stmt.execute(//blast.id, blast.name);
+                    con.close();
+        } catch (Exception e) {
+            System.out.println(e);
         }
     }
 
@@ -247,11 +277,11 @@ public class OrfFinder extends JFrame implements ActionListener {
             ArrayList<String> orfsArrayList = new ArrayList<>();
             for (int i = 0; i < sequenceObj.getOrfs().size(); i++) {
                 String orfs = sequenceObj.getOrfs().get(i).toString();
-                orfsArrayList.add(i + ": " + orfs); }
+                orfsArrayList.add(i + ": " + orfs);
+            }
             orfsArray = new String[orfsArrayList.size()];
             orfsArrayList.toArray(orfsArray);
-        }
-        catch (NullPointerException | ArrayIndexOutOfBoundsException e) {
+        } catch (NullPointerException | ArrayIndexOutOfBoundsException e) {
             JOptionPane.showMessageDialog(null, "Er zijn geen ORFs om te selecteren ");
         }
         return orfsArray;
@@ -276,4 +306,6 @@ public class OrfFinder extends JFrame implements ActionListener {
         }
     }
 }
+
+
 
