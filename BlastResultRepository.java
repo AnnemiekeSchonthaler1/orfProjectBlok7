@@ -5,6 +5,7 @@ import java.sql.*;
 public class BlastResultRepository {
 
     public static void main(String args[]) {
+        //save the data,  code template
         try {
             Class.forName("com.mysql.jdbc.Driver");
             Connection con = DriverManager.getConnection(
