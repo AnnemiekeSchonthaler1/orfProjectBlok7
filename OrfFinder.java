@@ -168,6 +168,10 @@ public class OrfFinder extends JFrame implements ActionListener {
         // blast resultaten ophalen uit database ; indien we genoeg tijd hebben om deze functie af te maken
     }
 
+    /** Deze functie blast het geselecteerde ORF door een python bestand aan te roepen met de code hiervoor.
+     * safe = of de resultaten op moeten worden geslagen in de database
+     * sequentieOrf is de sequentie van het ORF wat is geblast
+     */
     public void blastOrfs() {
         try {
             boolean safe = false;
@@ -192,59 +196,37 @@ public class OrfFinder extends JFrame implements ActionListener {
                 safe = true;
             }
             System.out.println(safe);
-            // functie aanroepen van christiaan om geselecteerde ORF te blasten ; afhankelijk van checkbox wordt
-            // ook het resultaat direct opgeslagen in de database
 
+            //Dit stuk code is om de link te leggen met het python script wat de blast uit voert.
+            // Ik controleer welk os wordt gebruikt, aangezien niet elke os supported is.
             if (System.getProperty("os.name").startsWith("Windows")) {
                 System.out.println("Windows");
-                // Als het windows is voer ik het gepaste commandline commando uit om
+                // Als het windows is voer ik het gepaste commandline commando uit om de BLAST uit te voeren
                 Runtime rt = Runtime.getRuntime();
                 try {
+                    // Ik voer blaster (het python script voor BLAST) uit met de sequentie die binnenkomt
                     String command = "blaster.exe " + sequentieOrf;
                     Process p = rt.exec(command, null, new File(System.getProperty("user.dir")));
                     p.waitFor();
                     BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
-//                    ProcessBuilder processBuilder = new ProcessBuilder("blaster.exe");
-//                    processBuilder.redirectErrorStream(true);
-//                    Process p = processBuilder.start();
-//                    BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
                     String line;
                     while ((line = input.readLine()) != null) {
                         System.out.println(line);
                     }
                     System.out.println("Ik ben klaar met het uitvoeren van de BLAST.");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (InterruptedException e) {
+                } catch (IOException | InterruptedException e) {
                     e.printStackTrace();
                 }
-            } else if (System.getProperty("os.name").startsWith("Unix")) {
-                System.out.println("Linux");
-                //To get the PYTHON_ABSOLUTE_PATH just type
-                //
-                //which python2.7
-                String[] commands = new String[3];
-                commands[0] = "/bin/sh";
-                commands[1] = "-c";
-                commands[2] = "blaster.py";
-
-                ProcessBuilder pb = new ProcessBuilder(commands);
-                Process p = pb.start();
-                BufferedReader bri = new BufferedReader(new InputStreamReader(p.getInputStream()));
-
-                bri.close();
-                String line;
-                while ((line = bri.readLine()) != null) {
-                    System.out.println(line);
-                }
-                System.out.println("dun");
+            } else {
+                System.out.println("Dit os is niet supported");
+                //todo Harm maak hier een leuke gui foutmelding van zodat de gebruiker dit ook kan zien
             }
 
             if (safe) {
-                // Hier moeten de resultaten meegegeven
+                // Hier moeten de resultaten meegegeven die nodig zijn voor de queries
                 safeBlast();
             }
-        } catch (NullPointerException | ArrayIndexOutOfBoundsException | IOException e) {
+        } catch (NullPointerException | ArrayIndexOutOfBoundsException e) {
             // do nothing ; wordt in makeArrayOfOrfs al met een messagebox gewaarschuwd. Kreeg het niet voor elkaar
             // om deze helemaal af te vangen, dus ik vang hem hier ook af zonder programma te storen.
         }
@@ -264,9 +246,10 @@ insert into sequence(  {seq_id } , {seq_varchar } )
 insert into ORF( {ORF_id },{ Sequence_ORF},{Sequence_sequence_id})
 insert into Blast_res ( { description}, {coverage},{e_value}, {loc_start},{Loc_end},{blast_id},{ORF_ORF_id})
  */
-            Statement stmt = con.prepareStatement("insert into blast_res (column1, column2) values (?, ?)");
-            stmt.execute(//blast.id, blast.name);
-                    con.close();
+
+//            Statement stmt = con.prepareStatement("insert into blast_res (column1, column2) values (?, ?)");
+//            stmt.execute(//blast.id, blast.name);
+//                    con.close();
         } catch (Exception e) {
             System.out.println(e);
         }
