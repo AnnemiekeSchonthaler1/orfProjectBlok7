@@ -162,11 +162,13 @@ public class OrfFinder extends JFrame implements ActionListener {
      * met de ORFs als posities.
      */
     public void predictOrfs() {
-        sequenceObj.findOrfs();
-        if (sequenceObj.getOrfs().size() > 0) {
-            textArea.append("Aantal gevonden Orfs: " + sequenceObj.getOrfs().size() + "\n");
-            OrfFinder.MultiThreading t1 = new OrfFinder.MultiThreading();
-            t1.start();
+        if (sequenceObj.getSequence() != null) {
+            sequenceObj.findOrfs();
+            if (sequenceObj.getOrfs().size() > 0) {
+                textArea.append("Aantal gevonden Orfs: " + sequenceObj.getOrfs().size() + "\n");
+                OrfFinder.MultiThreading t1 = new OrfFinder.MultiThreading();
+                t1.start();
+            }
         }
     }
 
