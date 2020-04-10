@@ -1,4 +1,3 @@
-package Blok7ApplicatieORF;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.regex.Matcher;
