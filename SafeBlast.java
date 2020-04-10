@@ -1,10 +1,9 @@
-////Hier moeten we nog neerzetten over het gebrek van onze feature ; of christiaan aanvullingen
-//// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-//// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-//// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+///* Deze feature is niet gelukt. Het is niet gelukt om in de queries argumenten mee te geven. Door gebrek
+//aan tijd zou dit in een later stadium moeten worden ge-update.
+// */
 //
-//private void safeBlast(String ORFSequence,ArrayList tempSaveBlastData) {
-//        // functioni to save the data to the database, makes use of 3 queries to do so
+//private voidz safeBlast(String ORFSequence,ArrayList tempSaveBlastData) {
+//        // function to save the data to the database, makes use of 3 queries to do so
 //        try {
 //        Class.forName("com.mysql.jdbc.Driver");
 //        Connection con = DriverManager.getConnection(
@@ -13,7 +12,7 @@
 //        "jdbc:mysql://hannl-hlo-bioinformatica-mysqlsrv.mysql.database.azure.com:3306/rucia?serverTimezone=UTC",
 //        "rucia@hannl-hlo-bioinformatica-mysqlsrv",
 //        "kip");
-///*
+///* Queries:
 //insert into sequence(  {seq_id } , {seq_varchar } )
 //insert into ORF( {ORF_id },{ Sequence_ORF},{Sequence_sequence_id})
 //insert into Blast_res ( { description}, {coverage},{e_value}, {loc_start},{Loc_end},{blast_id},{ORF_ORF_id})
@@ -35,5 +34,4 @@
 //        con.close();
 //        } catch (Exception e) {
 //        System.out.println(e);
-//        }
-//        }
+//        }}
