@@ -233,7 +233,7 @@ public class OrfFinder extends JFrame implements ActionListener {
                 System.out.println("Functie moet nog geimplementeerd worden");
             }
         } catch (NullPointerException | ArrayIndexOutOfBoundsException e) {
-            e.printStackTrace();
+            // De NullPointerException wordt al afgevangen met een messagebox in makeArrayOfOrfs()
         }
     }
 
