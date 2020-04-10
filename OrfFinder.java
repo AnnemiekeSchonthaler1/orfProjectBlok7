@@ -178,11 +178,11 @@ public class OrfFinder extends JFrame implements ActionListener {
      * de resultaten in de database worden opgeslagen.
      * sequentieOrf is de sequentie van het geblaste ORF.
      */
-    public void blastOrfs() {
+        public void blastOrfs() {
         try {
             boolean safe = false;
             orfsArray = makeArrayOfOrfs();
-            JLabel name = new JLabel(orfsArray[0]);
+            JLabel name = new JLabel("leeg");
             // longValue bepaalt het aantal zichtbare tekens in het selectiemenu van ORFs.
             String selectedName = ListDialog.showDialog(frame,
                     predictOrfButton,
@@ -191,46 +191,47 @@ public class OrfFinder extends JFrame implements ActionListener {
                     orfsArray, name.getText(),
                     "<ORF lijst>                                                                           ");
             String[] result = selectedName.split(":");
-            int id = Integer.parseInt(result[0]);
-            ArrayList<Integer> positie = (ArrayList<Integer>) sequenceObj.orfs.get(id);
-            String sequentieOrf = sequenceObj.getSequence().substring(positie.get(0), positie.get(1));
+            if (!name.getText().equals("leeg")) {
+                int id = Integer.parseInt(result[0]);
+                ArrayList<Integer> positie = (ArrayList<Integer>) sequenceObj.orfs.get(id);
+                String sequentieOrf = sequenceObj.getSequence().substring(positie.get(0), positie.get(1));
 
-            if (safeResultBox.isSelected()) {
-                safe = true;
-            }
-
-            //Dit stuk code is om de link te leggen met het python script wat de blast uit voert.
-            // Ik controleer welk os wordt gebruikt, aangezien niet elke os supported is.
-            if (System.getProperty("os.name").startsWith("Windows")) {
-                // Als het windows is voer ik het gepaste commandline commando uit om de BLAST uit te voeren
-                Runtime rt = Runtime.getRuntime();
-                try {
-                    // Ik voer blaster (het python script voor BLAST) uit met de sequentie die binnenkomt
-                    String command = "blaster.exe " + sequentieOrf;
-                    Process p = rt.exec(command, null, new File(System.getProperty("user.dir")));
-                    p.waitFor();
-                    BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
-                    String line;
-                    textArea.setText("");
-                    while ((line = input.readLine()) != null) {
-                        textArea.append(line + "\n");
-                    }
-                } catch (IOException | InterruptedException e) {
-                    e.printStackTrace();
+                if (safeResultBox.isSelected()) {
+                    safe = true;
                 }
-            } else {
-                JOptionPane.showMessageDialog(null, "Dit OS wordt momenteel niet ondersteund: " +
-                        "probeer een ander OS");
-            }
+                //Dit stuk code is om de link te leggen met het python script wat de blast uit voert.
+                // Ik controleer welk os wordt gebruikt, aangezien niet elke os supported is.
+                if (System.getProperty("os.name").startsWith("Windows")) {
+                    // Als het windows is voer ik het gepaste commandline commando uit om de BLAST uit te voeren
+                    Runtime rt = Runtime.getRuntime();
+                    try {
+                        // Ik voer blaster (het python script voor BLAST) uit met de sequentie die binnenkomt
+                        String command = "blaster.exe " + sequentieOrf;
+                        Process p = rt.exec(command, null, new File(System.getProperty("user.dir")));
+                        p.waitFor();
+                        BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
+                        String line;
+                        textArea.setText("");
+                        while ((line = input.readLine()) != null) {
+                            textArea.append(line + "\n");
+                        }
+                    } catch (IOException | InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(null, "Dit OS wordt momenteel niet ondersteund: " +
+                            "probeer een ander OS");
+                }
 
-            if (safe) {
-                // Hier moeten de resultaten meegegeven die nodig zijn voor de queries
-                // safeBlast();    <-- methode die zou moeten worden aangeroepen
-                System.out.println("Functie moet nog geimplementeerd worden");
+                if (safe) {
+                    // Hier moeten de resultaten meegegeven die nodig zijn voor de queries
+                    // safeBlast();    <-- methode die zou moeten worden aangeroepen
+                    System.out.println("Functie moet nog geimplementeerd worden");
+                }
             }
-        } catch (NullPointerException | ArrayIndexOutOfBoundsException e) {
-            // De NullPointerException wordt al afgevangen met een messagebox in makeArrayOfOrfs()
-        }
+            } catch(NullPointerException | ArrayIndexOutOfBoundsException e){
+                // De NullPointerException wordt al afgevangen met een messagebox in makeArrayOfOrfs()
+            }
     }
 
     /**
