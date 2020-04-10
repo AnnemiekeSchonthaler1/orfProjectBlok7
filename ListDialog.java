@@ -1,5 +1,3 @@
-package Blok7ApplicatieORF;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
