@@ -1,4 +1,3 @@
-//package Blok7ApplicatieORF;
 //
 //import java.sql.*;
 //
