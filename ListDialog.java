@@ -5,13 +5,12 @@ import java.awt.*;
 import java.awt.event.*;
 
 /*
+ * Deze class is niet volledig zelf geschreven, maar aangepast voor eigen gebruik.
+ * @Credits gaan naar: https://docs.oracle.com/javase/tutorial/uiswing/examples/components/ListDialogRunnerProject/src/components/ListDialog.java
+ *
  * ListDialog.java is meant to be used by programs such as
  * ListDialogRunner.  It requires no additional files.
  */
-
-// - HARM <REMINDER>
-// Geleend van : https://docs.oracle.com/javase/tutorial/uiswing/examples/components/ListDialogRunnerProject/src/components/ListDialog.java
-// Niet veel aan aangepast, bijna 1 op 1 dus wel zo netjes om te benoemen bij bronnen ofzo, of in script
 
 /**
  * Use this modal dialog to let the user choose one string from a long

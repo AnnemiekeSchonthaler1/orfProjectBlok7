@@ -1,3 +1,4 @@
+package Blok7ApplicatieORF;
 import java.util.HashMap;
 
 /**
@@ -23,32 +24,35 @@ public class SequenceObj {
     }
 
     /**
-     * Deze functie set de sequentie. Hij controleert ook of er alleen
-     * @param sequence
+     * Deze functie set de sequentie. Hij controleert ook of de sequentie uit "ATGCN" bestaat.
+     * @param sequence Dit is de sequentie.
      */
     public void setSequence(String sequence) {
         String sequenceWithoutN = sequence.replace("\n", "");
         // Dit controleert of er ALLEEN ATGU in de sequentie zit en dus of het een geldige seq is
-        String regex = "[ATGC]*";
+        String regex = "[ATGCN]*";
         if (sequenceWithoutN.matches(regex)) {
             // Als dit zo is slaat het de sequentie op in de variabele
             this.sequence = sequenceWithoutN;
         } else {
             // Als de sequentie niet valide is wordt het "0".
-            // Het afvangen van verdere handelingen moet in de GUI class.
+            // Het afvangen van verdere handelingen wordt afgevangen in de GUI class.
             this.sequence = "0";
-            //todo Harm misschien moet hier ook een zichtbare errormelding voor komen
         }
     }
 
-
-    // Deze functie wordt aangeroepen als er ORF's moeten worden gezocht.
+    /**
+     * Deze functie wordt aangeroepen als er ORF's moeten worden gezocht.
+     */
     public void findOrfs() {
         // Hij roept een andere class aan die de ORF's gaat zoeken en retourneert.
         orfs = FindOrfInSeq.main(this);
     }
 
-    // Deze functie retourneert de hashmap met ORF's
+    /**
+     * Deze functie retourneert de hashmap met ORF's
+     * @return retourneert een Hashmap met daarin een Key en Value: <id, [startpositie, eindpositie]>
+     */
     public HashMap getOrfs() {
         return this.orfs;
     }
