@@ -206,9 +206,7 @@ public class OrfFinder extends JFrame implements ActionListener {
                 Runtime rt = Runtime.getRuntime();
                 try {
                     // Ik voer blaster (het python script voor BLAST) uit met de sequentie die binnenkomt
-                    System.out.println("hier");
                     String command = "blaster.exe " + sequentieOrf;
-                    System.out.println("hier2");
                     Process p = rt.exec(command, null, new File(System.getProperty("user.dir")));
                     p.waitFor();
                     BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
@@ -216,9 +214,7 @@ public class OrfFinder extends JFrame implements ActionListener {
                     textArea.setText("");
                     while ((line = input.readLine()) != null) {
                         textArea.append(line + "\n");
-                        System.out.println(line);
                     }
-                    System.out.println("klaar");
                 } catch (IOException | InterruptedException e) {
                     e.printStackTrace();
                 }
